@@ -1,0 +1,130 @@
+class Node:
+    def __init__(self, key, value):
+        self.key = key      
+        self.value = value  
+        self.next = None
+# Pertama, dibuat class Node yang berfungsi sebagai tempat penyimpanan data, 
+# self.key digunakan untuk menyimpan NIM mahasiswa,
+# self.value digunakan untuk menyimpan data mahasiswa, 
+# sedangkan self.next = None digunakan untuk menghubungkan node dengan node lain jika terjadi tabrakan data (collision)
+
+class HashMapSeparateChaining:
+    def __init__(self, size=10):
+        self.SIZE = size
+        self.table = [None] * self.SIZE
+# Selanjutnya dibuat class HashMapSeparateChaining untuk mengelola Hash Map,
+# Bagian ini membuat Hash Map dengan ukuran 10 slot yang awalnya masih kosong (None).
+
+    def hash_function(self, key):
+        return (key % self.SIZE + self.SIZE) % self.SIZE
+# Kemudian terdapat fungsi hash:
+# Fungsi ini digunakan untuk menentukan posisi penyimpanan data berdasarkan NIM. Misalnya NIM 101
+
+    def insert(self, key, value):
+        index = self.hash_function(key)
+        current = self.table[index]
+# Fungsi insert() digunakan untuk menambahkan data mahasiswa ke dalam Hash Map,
+        while current is not None:
+            if current.key == key:
+                current.value = value
+                return
+            current = current.next
+
+        new_node = Node(key, value)
+        new_node.next = self.table[index]
+        self.table[index] = new_node
+# Program akan mencari indeks menggunakan fungsi hash. Jika pada indeks tersebut sudah terdapat data dengan NIM yang sama, maka data akan diperbarui. Jika belum ada, program akan membuat node baru dan menyimpannya pada indeks yang sesuai. Jika terjadi collision, node baru akan dihubungkan dengan node sebelumnya menggunakan linked list (separate chaining).
+
+    def search(self, key):
+        index = self.hash_function(key)
+        current = self.table[index]
+# Fungsi search() digunakan untuk mencari data mahasiswa berdasarkan NIM.
+        while current is not None:
+            if current.key == key:
+                return current
+            current = current.next
+      return None
+# Program akan mencari indeks berdasarkan NIM, kemudian memeriksa node satu per satu sampai menemukan NIM yang dicari. Jika ditemukan, data mahasiswa akan dikembalikan. Jika tidak ditemukan, program akan mengembalikan nilai None.
+
+    def remove_key(self, key):
+        index = self.hash_function(key)
+        current = self.table[index]
+        prev = None
+# Fungsi remove_key() digunakan untuk menghapus data mahasiswa.
+        while current is not None:
+            if current.key == key:
+                if prev is None:
+                    self.table[index] = current.next
+                else:
+                    prev.next = current.next
+                return True
+            prev = current
+            current = current.next
+        return False
+# Program akan mencari NIM yang akan dihapus. Jika ditemukan, node tersebut akan dilepas dari linked list sehingga data mahasiswa tidak lagi tersimpan dalam Hash Map. Jika berhasil dihapus, fungsi mengembalikan nilai True, sedangkan jika tidak ditemukan mengembalikan False.
+
+    def display(self):
+        print("\nData Absensi Mahasiswa:")
+        for i in range(self.SIZE):
+            print(f"{i}: ", end="")
+            current = self.table[i]
+# Fungsi display() digunakan untuk menampilkan seluruh isi Hash Map.
+            while current is not None:
+                print(
+                    f"(NIM:{current.key}, Nama:{current.value['nama']}, "
+                    f"Kelas:{current.value['kelas']}, "
+                    f"Hadir:{current.value['kehadiran']}) -> ",
+                    end=""
+                )
+                current = current.next
+
+         print("NONE")
+# Program akan menampilkan setiap indeks beserta data mahasiswa yang tersimpan di dalamnya. Jika suatu indeks kosong, maka akan ditampilkan NONE.
+
+
+def main():
+    hashmap = HashMapSeparateChaining()
+# dibuat objek Hash Map, kemudian ditambahkan beberapa data mahasiswa menggunakan
+
+    hashmap.insert(101, {
+        "nama": "Rio",
+        "kelas": "TI-A",
+        "kehadiran": "Hadir"
+    })
+
+    hashmap.insert(111, {
+        "nama": "Rama",
+        "kelas": "TI-B",
+        "kehadiran": "Izin"
+    })
+
+    hashmap.insert(121, {
+        "nama": "Ical",
+        "kelas": "TI-A",
+        "kehadiran": "Hadir"
+    })
+
+    hashmap.display()
+# Setelah data dimasukkan, program menampilkan seluruh data mahasiswa
+
+    nim = 111
+    hasil = hashmap.search(nim)
+# program mencari mahasiswa dengan NIM 111
+
+    if hasil is not None:
+        print(f"\nData mahasiswa dengan NIM {nim}:")
+        print("Nama      :", hasil.value["nama"])
+        print("Kelas     :", hasil.value["kelas"])
+        print("Kehadiran :", hasil.value["kehadiran"])
+    else:
+        print(f"\nNIM {nim} tidak ditemukan")
+
+    hashmap.remove_key(111)
+# data mahasiswa dengan NIM 111 dihapus
+
+    print("\nSetelah menghapus NIM 111:")
+    hashmap.display()
+
+
+if __name__ == "__main__":
+    main()
